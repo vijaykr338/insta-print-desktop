@@ -46,8 +46,13 @@
     "@fontsource/roboto": "^5.1.1",
     "@mui/icons-material": "^6.3.0",
     "@mui/material": "^6.3.0",
+    "axios": "^1.7.9",
+    "electron-dl": "^4.0.0",
     "electron-squirrel-startup": "^1.0.1",
+    "fs": "^0.0.1-security",
+    "path": "^0.12.7",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-pdf": "^9.2.1"
   }
 }

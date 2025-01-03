@@ -1,9 +1,14 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import PdfViewer from './components/pdfViewer.jsx';
+import DownloadComponent from './components/DownloadComponent.jsx';
 
 export default function App() {
+
+
+
   return (
-    <div className='bg-black'>
-        <p className='text-3xl text-white'>Hello Print</p>
+    <div> 
+     <DownloadComponent></DownloadComponent>
     </div>
   )
 }

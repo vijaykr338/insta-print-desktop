@@ -1,6 +1,8 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
+import {download} from 'electron-dl'
+
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -23,6 +25,8 @@ const createWindow = () => {
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
 };
+
+
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -50,3 +54,22 @@ app.on('window-all-closed', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+
+ipcMain.handle('download-file', async (event, { url }) => {
+  try {
+    const downloadItem = await download(BrowserWindow.getFocusedWindow(), url, {
+      onProgress: (progress) => console.log(`Progress: ${progress.percent * 100}%`),
+    });
+
+    const fileDetails = {
+      fileName: downloadItem.getFilename(),
+      filePath: downloadItem.getSavePath(),
+      fileSize: downloadItem.getTotalBytes(),
+    };
+
+
+    return { success: true, fileDetails };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
