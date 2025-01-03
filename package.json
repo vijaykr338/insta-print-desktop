@@ -46,8 +46,14 @@
     "@fontsource/roboto": "^5.1.1",
     "@mui/icons-material": "^6.3.0",
     "@mui/material": "^6.3.0",
+    "@shadcn/ui": "^0.0.4",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "electron-squirrel-startup": "^1.0.1",
+    "lucide-react": "^0.469.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "tailwind-merge": "^2.6.0",
+    "tailwindcss-animate": "^1.0.7"
   }
 }
