@@ -15,7 +15,7 @@ const DownloadComponent = () => {
 
       if (response.success) {
         setFileDetails(response.fileDetails); // Save file details
-        console.log(response)
+        console.log(response);
         alert('File downloaded successfully!');
       } else {
         alert(`Download failed: ${response.error}`);
@@ -25,9 +25,25 @@ const DownloadComponent = () => {
     }
   };
 
+  const handlePrint = async () => {
+    if (!fileDetails) {
+      alert('No file to print. Please download a file first.');
+      return;
+    }
+
+    try {
+      const response = await window.electron.printFile(fileDetails.filePath);
+      if (!response.success) {
+        alert(`Print failed: ${response.error}`);
+      }
+    } catch (error) {
+      alert(`An unexpected error occurred while printing: ${error.message}`);
+    }
+  };
+
   return (
     <div style={{ padding: '20px', textAlign: 'center' }}>
-      <h2>Download File</h2>
+      <h2>Download and Print File</h2>
       <input
         type="text"
         placeholder="Enter URL"
@@ -51,9 +67,23 @@ const DownloadComponent = () => {
           border: 'none',
           borderRadius: '4px',
           cursor: 'pointer',
+          marginRight: '10px',
         }}
       >
         Download
+      </button>
+      <button
+        onClick={handlePrint}
+        style={{
+          padding: '10px 20px',
+          backgroundColor: '#28a745',
+          color: '#fff',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer',
+        }}
+      >
+        Print
       </button>
 
       {fileDetails && (

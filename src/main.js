@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import {download} from 'electron-dl'
+import fs from 'fs'
 
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -54,6 +55,34 @@ app.on('window-all-closed', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+
+
+ipcMain.handle('print-file', async (event, filePath) => {
+  if (!fs.existsSync(filePath)) {
+    return { success: false, error: 'File does not exist' };
+  }
+
+  try {
+    const printWindow = new BrowserWindow({
+      show: false,
+      webPreferences: {
+        nodeIntegration: false
+      }
+    });
+    console.log(filePath)
+    await printWindow.loadFile(filePath);
+
+    printWindow.webContents.print({ silent: false, printBackground: true }, (success, errorType) => {
+      if (!success) {
+        console.error(`Print failed: ${errorType}`);
+      }
+    });
+
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
 
 ipcMain.handle('download-file', async (event, { url }) => {
   try {

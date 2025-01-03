@@ -4,4 +4,5 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electron', {
   downloadFile: (url) => ipcRenderer.invoke('download-file', { url }),
+  printFile: (filePath) => ipcRenderer.invoke('print-file', filePath),
 });
