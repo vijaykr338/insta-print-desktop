@@ -1,9 +1,9 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
-import {download} from 'electron-dl'
-import fs from 'fs'
-
+import { download } from 'electron-dl';
+import fs from 'fs';
+import { PDFDocument } from 'pdf-lib'; // Import pdf-lib
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -26,8 +26,6 @@ const createWindow = () => {
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
 };
-
-
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -56,25 +54,43 @@ app.on('window-all-closed', () => {
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
 
-
 ipcMain.handle('print-file', async (event, filePath) => {
   if (!fs.existsSync(filePath)) {
     return { success: false, error: 'File does not exist' };
   }
 
   try {
+    const pdfBytes = fs.readFileSync(filePath);
+    const pdfDoc = await PDFDocument.load(pdfBytes);
+
     const printWindow = new BrowserWindow({
-      show: false,
+      show: true, // Make the window visible
+      width: 800,
+      height: 600,
       webPreferences: {
-        nodeIntegration: false
+        nodeIntegration: true
       }
     });
-    console.log(filePath)
-    await printWindow.loadFile(filePath);
 
-    printWindow.webContents.print({ silent: false, printBackground: true }, (success, errorType) => {
-      if (!success) {
-        console.error(`Print failed: ${errorType}`);
+    const pdfDataUri = await pdfDoc.saveAsBase64({ dataUri: true });
+    const htmlContent = `<embed src="${pdfDataUri}" type="application/pdf" width="100%" height="100%">`;
+
+    printWindow.loadURL(`data:text/html;base64,${Buffer.from(htmlContent).toString('base64')}`);
+
+    // Ensure the content is fully loaded before printing
+    printWindow.webContents.on('did-finish-load', async () => {
+      try {
+        const pdfData = await printWindow.webContents.printToPDF({});
+        fs.writeFileSync(filePath, pdfData);
+        printWindow.webContents.print({ silent: false, printBackground: true }, (success, errorType) => {
+          if (!success) {
+            console.error(`Print failed: ${errorType}`);
+          }
+          printWindow.close(); // Close the window after printing
+        });
+      } catch (error) {
+        console.error(`Failed to generate PDF: ${error.message}`);
+        printWindow.close();
       }
     });
 
@@ -95,7 +111,6 @@ ipcMain.handle('download-file', async (event, { url }) => {
       filePath: downloadItem.getSavePath(),
       fileSize: downloadItem.getTotalBytes(),
     };
-
 
     return { success: true, fileDetails };
   } catch (error) {
